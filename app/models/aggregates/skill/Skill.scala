@@ -8,4 +8,5 @@ case class Skill(
     name: String,
     createdAt: DateTime,
     deletedAt: Option[DateTime] = None) {
+
 }
