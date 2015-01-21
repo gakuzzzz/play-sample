@@ -3,21 +3,26 @@ package controllers
 import play.api._, mvc._
 import play.api.data._, Forms._, validation.Constraints._
 
-import org.json4s._, ext.JodaTimeSerializers, native.JsonMethods._
-import com.github.tototoshi.play2.json4s.native._
+import models.aggregates.CompanyId
+import play.api.libs.json.Json
+import _root_.controllers.support.CustomJsonFormats._
+import _root_.controllers.support.SyntaxSupport._
+import _root_.controllers.stack.InitialContextElement
+import models.ComponentRegistry
+import models.services.ServiceComponents
 
-import models._
+trait Companies extends Controller with InitialContextElement { self: ServiceComponents =>
 
-object Companies extends Controller with Json4s {
-
-  implicit val formats = DefaultFormats ++ JodaTimeSerializers.all
-
-  def all = Action {
-    Ok(Extraction.decompose(Company.findAll))
+  def all = StackAction { implicit req =>
+    Ok(Json.toJson(companyService.findAll))
   }
 
-  def show(id: Long) = Action {
-    Company.find(id).map { company => Ok(Extraction.decompose(company)) } getOrElse NotFound
+  def show(id: CompanyId) = StackAction { implicit req =>
+    for {
+      company <- companyService.findById(id)   V   NotFound
+    } yield {
+      Ok(Json.toJson(company))
+    }
   }
 
   case class CompanyForm(name: String, url: Option[String] = None)
@@ -29,22 +34,24 @@ object Companies extends Controller with Json4s {
     )(CompanyForm.apply)(CompanyForm.unapply)
   )
 
-  def create = Action { implicit req =>
-    companyForm.bindFromRequest.fold(
-      formWithErrors => BadRequest("invalid parameters"),
-      form => {
-        val company = Company.create(name = form.name, url = form.url)
-        Created.withHeaders(LOCATION -> s"/companies/${company.id}")
-        NoContent
-      }
-    )
+  def create = StackAction { implicit req =>
+    for {
+      form <- companyForm.bindFromRequest   V   BadRequest("invalid parameters")
+    } yield {
+      val company = companyService.create(form.name, form.url)
+//      Created.withHeaders(LOCATION -> routes.Companies.show(company.id).url)
+      NoContent // TODO: backbone bug
+    }
   }
 
-  def delete(id: Long) = Action {
-    Company.find(id).map { company =>
-      company.destroy()
+  def delete(id: CompanyId) = StackAction { implicit req =>
+    for {
+      company <- companyService.findById(id)   V   NotFound
+      _       <- companyService.delete(id)     V   Conflict
+    } yield {
       NoContent
-    } getOrElse NotFound
+    }
   }
 
 }
+object Companies extends Companies with ComponentRegistry

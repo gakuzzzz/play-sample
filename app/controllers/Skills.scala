@@ -1,47 +1,55 @@
 package controllers
 
+import models.services.{ServiceComponents, SkillService}
+import models.shared.PlaySampleContext
 import play.api._, mvc._
-import play.api.data._, Forms._, validation.Constraints._
+import play.api.data._, Forms._
 
-import org.json4s._, ext.JodaTimeSerializers, native.JsonMethods._
-import com.github.tototoshi.play2.json4s.native._
+import models.aggregates.SkillId
+import play.api.libs.json.Json
+import _root_.controllers.support.CustomJsonFormats._
+import _root_.controllers.support.SyntaxSupport._
+import _root_.controllers.stack.InitialContextElement
+import models.ComponentRegistry
 
-import models._
+trait Skills extends Controller with InitialContextElement { self: ServiceComponents =>
 
-object Skills extends Controller with Json4s {
-
-  implicit val formats = DefaultFormats ++ JodaTimeSerializers.all
-
-  def all = Action {
-    Ok(Extraction.decompose(Skill.findAll))
+  def all = StackAction { implicit req =>
+    Ok(Json.toJson(skillService.findAll))
   }
 
-  def show(id: Long) = Action {
-    Skill.find(id).map(skill => Ok(Extraction.decompose(skill))) getOrElse NotFound
+  def show(id: SkillId) = StackAction { implicit req =>
+    for {
+      skill <- skillService.findById(id)  V  NotFound
+    } yield {
+      Ok(Json.toJson(skill))
+    }
   }
 
   case class SkillForm(name: String)
 
   private val skillForm = Form(
-    mapping("name" -> text.verifying(nonEmpty))(SkillForm.apply)(SkillForm.unapply)
+    mapping("name" -> nonEmptyText)(SkillForm.apply)(SkillForm.unapply)
   )
 
-  def create = Action { implicit req =>
-    skillForm.bindFromRequest.fold(
-      formWithErrors => BadRequest("invalid parameters"),
-      form => {
-        val skill = Skill.create(name = form.name)
-        Created.withHeaders(LOCATION -> s"/skills/${skill.id}")
-        NoContent
-      }
-    )
+  def create = StackAction { implicit req =>
+    for {
+      form  <- skillForm.bindFromRequest()  V  BadRequest("invalid parameters")
+    } yield {
+      val skill = skillService.create(form.name)
+//      Created.withHeaders(LOCATION -> routes.Skills.show(skill.id).url)
+      NoContent // TODO: backbone bug
+    }
   }
 
-  def delete(id: Long) = Action {
-    Skill.find(id).map { skill =>
-      skill.destroy()
+  def delete(id: SkillId) = StackAction { implicit req =>
+    for {
+      old <- skillService.findById(id)  V  NotFound
+      _   <- skillService.delete(id)    V  Conflict
+    } yield {
       NoContent
-    } getOrElse NotFound
+    }
   }
 
 }
+object Skills extends Skills with ComponentRegistry

@@ -1,82 +1,99 @@
 package controllers
 
 import play.api._, mvc._
-import play.api.data._, Forms._, validation.Constraints._
+import play.api.data._, Forms._, validation.Constraints._, format.Formats._
 
-import org.json4s._, ext.JodaTimeSerializers, native.JsonMethods._
-import com.github.tototoshi.play2.json4s.native._
+import models.aggregates.{ProgrammerId, SkillId, CompanyId}
+import _root_.controllers.support.CustomMappings._
+import _root_.controllers.support.CustomJsonFormats._
+import _root_.controllers.support.SyntaxSupport._
+import _root_.controllers.stack.InitialContextElement
+import play.api.libs.json.Json
+import models.services.ServiceComponents
+import views.programmers.ProgrammerView
+import models.ComponentRegistry
 
-import models._
+trait Programmers extends Controller with InitialContextElement { self: ServiceComponents =>
 
-object Programmers extends Controller with Json4s {
-
-  implicit val formats = DefaultFormats ++ JodaTimeSerializers.all
-
-  def all = Action {
-    Ok(Extraction.decompose(Programmer.findAll))
+  def all = StackAction { implicit req =>
+    val items = programmerService.findAll
+    val views = items.map { case (p, c, ss) => ProgrammerView(p.id, p.name, p.createdAt, p.updatedAt, c, ss) }
+    Ok(Json.toJson(views))
   }
 
-  def show(id: Long) = Action {
-    Programmer.find(id).map(programmer => Ok(Extraction.decompose(programmer))) getOrElse NotFound
+  def show(id: ProgrammerId) = StackAction { implicit req =>
+    for {
+      item <- programmerService.findById(id)  V  NotFound
+    } yield {
+      val (p, c, ss) = item
+      val view = ProgrammerView(p.id, p.name, p.createdAt, p.updatedAt, c, ss)
+      Ok(Json.toJson(view))
+    }
   }
 
-  case class ProgrammerForm(name: String, companyId: Option[Long] = None)
+  case class ProgrammerForm(name: String, companyId: Option[CompanyId] = None)
 
   private val programmerForm = Form(
     mapping(
-      "name" -> text.verifying(nonEmpty),
-      "companyId" -> optional(longNumber) 
+      "name"      -> text.verifying(nonEmpty),
+      "companyId" -> optional(atom[CompanyId])
     )(ProgrammerForm.apply)(ProgrammerForm.unapply)
   )
 
-  def create = Action { implicit req =>
-    programmerForm.bindFromRequest.fold(
-      formWithErrors => BadRequest("invalid parameters"),
-      form => {
-        val programmer = Programmer.create(name = form.name, companyId = form.companyId)
-        Created.withHeaders(LOCATION -> s"/programmers/${programmer.id}")
-        NoContent
-      }
-    )
+  def create = StackAction { implicit req =>
+    for {
+      form <- programmerForm.bindFromRequest  V   BadRequest("invalid parameters")
+    } yield {
+      val programmer = programmerService.create(form.name, form.companyId)
+//      Created.withHeaders(LOCATION -> routes.Programmers.show(programmer.id).url)
+      NoContent // TODO: backbone bug
+    }
   }
 
-  def addSkill(programmerId: Long, skillId: Long) = Action {
-    Programmer.find(programmerId).map { programmer =>
-      try {
-        Skill.find(skillId).map(skill => programmer.addSkill(skill))
-        Ok
-      } catch { case e: Exception => Conflict }
-    } getOrElse NotFound
-  }
-
-  def deleteSkill(programmerId: Long, skillId: Long) = Action {
-    Programmer.find(programmerId).map { programmer =>
-      Skill.find(skillId).map(skill => programmer.deleteSkill(skill))
+  def addSkill(programmerId: ProgrammerId, skillId: SkillId) = StackAction { implicit req =>
+    for {
+      p <- programmerService.findByIdWithoutAssoc(programmerId)   V   NotFound("Programmer not found!")
+      _ <- programmerService.addSkill(p, skillId)                 V   Conflict
+    } yield {
       Ok
-    } getOrElse NotFound
+    }
   }
 
-  def joinCompany(programmerId: Long, companyId: Long) = Action {
-    Company.find(companyId).map { company =>
-      Programmer.find(programmerId).map { programmer =>
-        programmer.copy(companyId = Some(company.id)).save()
-        Ok
-      } getOrElse BadRequest("Programmer not found!")
-    } getOrElse BadRequest("Company not found!")
-  }
-
-  def leaveCompany(programmerId: Long) = Action {
-    Programmer.find(programmerId).map { programmer =>
-      programmer.copy(companyId = None).save()
+  def deleteSkill(programmerId: ProgrammerId, skillId: SkillId) = StackAction { implicit req =>
+    for {
+      p <- programmerService.findByIdWithoutAssoc(programmerId)   V   NotFound("Programmer not found!")
+      _ <- programmerService.deleteSkill(p, skillId)              V   Conflict
+    } yield {
       Ok
-    } getOrElse BadRequest("Programmer not found!")
+    }
   }
 
-  def delete(id: Long) = Action {
-    Programmer.find(id).map { programmer =>
-      programmer.destroy()
+  def joinCompany(programmerId: ProgrammerId, companyId: CompanyId) = StackAction { implicit req =>
+    for {
+      p <- programmerService.findByIdWithoutAssoc(programmerId)   V   NotFound("Programmer not found!")
+      _ <- programmerService.joinCompany(p, companyId)            V   Conflict
+    } yield {
+      Ok
+    }
+  }
+
+  def leaveCompany(programmerId: ProgrammerId) = StackAction { implicit req =>
+    for {
+      p <- programmerService.findByIdWithoutAssoc(programmerId)   V   NotFound("Programmer not found!")
+      _ <- programmerService.leaveCompany(p)                      V   Conflict
+    } yield {
+      Ok
+    }
+  }
+
+  def delete(id: ProgrammerId) = StackAction { implicit req =>
+    for {
+      p <- programmerService.findByIdWithoutAssoc(id)   V   NotFound("Programmer not found!")
+      _ <- programmerService.delete(id)                 V   Conflict
+    } yield {
       NoContent
-    } getOrElse NotFound
+    }
   }
 
 }
+object Programmers extends Programmers with ComponentRegistry

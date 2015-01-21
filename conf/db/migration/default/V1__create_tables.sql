@@ -5,6 +5,7 @@ create table programmer (
   name varchar(255) not null,
   company_id bigint,
   created_timestamp timestamp not null,
+  updated_timestamp timestamp not null,
   deleted_timestamp timestamp
 );
 
