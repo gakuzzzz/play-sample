@@ -14,4 +14,5 @@ case class Programmer(
     createdAt: DateTime,
     deletedAt: Option[DateTime] = None) {
 
+
 }

@@ -10,6 +10,7 @@ import models.ComponentRegistry
 import models.aggregates.SkillId
 import play.api.libs.json.Json
 import _root_.controllers.support.CustomJsonFormats._
+import _root_.controllers.support.SyntaxSupport._
 
 trait Skills extends Controller with InitialContextElement { self: ServiceComponents =>
 
