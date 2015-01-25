@@ -40,12 +40,16 @@ class ProgrammerDao {
   }
 
   def insert(name: String, companyId: Option[CompanyId], now: DateTime = DateTime.now())(implicit session: DBSession): Programmer = {
+<<<<<<< HEAD
     val version = 1
+=======
+>>>>>>> Extract Service
     val id = withSQL {
       QueryDSL.insert.into(ProgrammerTable).namedValues(
         pc.name      -> name,
         pc.companyId -> companyId.map(_.value),
         pc.createdAt -> now,
+<<<<<<< HEAD
         pc.updatedAt -> now,
         pc.version   -> version
       )
@@ -55,15 +59,31 @@ class ProgrammerDao {
 
   def update(p: Programmer, now: DateTime = DateTime.now())(implicit session: DBSession): Option[Programmer] = {
     val version = p.version + 1
+=======
+        pc.updatedAt -> now
+      )
+    }.updateAndReturnGeneratedKey.apply()
+    Programmer(id = ProgrammerId(id), name = name, companyId = companyId, createdAt = now, updatedAt = now)
+  }
+
+  def update(p: Programmer, now: DateTime = DateTime.now())(implicit session: DBSession): Option[Programmer] = {
+>>>>>>> Extract Service
     val updated = withSQL {
       QueryDSL.update(ProgrammerTable).set(
         pc.name      -> p.name,
         pc.companyId -> p.companyId.map(_.value),
+<<<<<<< HEAD
         pc.updatedAt -> now,
         pc.version   -> version
       ).where.eq(pc.id, p.id.value).and.eq(pc.version, p.version)
     }.update.apply() > 0
     if (updated) Some(p.copy(updatedAt = now, version = version)) else None
+=======
+        pc.updatedAt -> now
+      ).where.eq(pc.id, p.id.value)
+    }.update.apply() > 0
+    if (updated) Some(p.copy(updatedAt = now)) else None
+>>>>>>> Extract Service
   }
 
   def delete(id: ProgrammerId, now: DateTime = DateTime.now())(implicit session: DBSession): Boolean = {

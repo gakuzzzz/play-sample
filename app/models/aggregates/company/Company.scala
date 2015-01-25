@@ -8,6 +8,8 @@ case class Company(
     name: String,
     url: Option[String] = None,
     createdAt: DateTime,
-    deletedAt: Option[DateTime] = None) {
+    updatedAt: DateTime,
+    deletedAt: Option[DateTime] = None,
+    version: Int) {
 
 }
