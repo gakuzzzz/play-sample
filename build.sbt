@@ -17,7 +17,8 @@ lazy val root = (project in file("."))
       "org.scalikejdbc"           %% "scalikejdbc-test"                 % scalikejdbcVersion  % "test",
       "org.scalatest"             %% "scalatest"                        % "2.2.2"             % "test",
       "org.scalacheck"            %% "scalacheck"                       % "1.12.1"            % "test",
-      "com.typesafe.play"         %% "play-test"                        % playVersion         % "test"
+      "com.typesafe.play"         %% "play-test"                        % playVersion         % "test",
+      "org.scalatestplus"         %% "play"                             % "1.2.0"             % "test"
     ),
     parallelExecution in test := false,
     play.PlayImport.PlayKeys.routesImport := Seq(
