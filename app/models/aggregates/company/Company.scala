@@ -6,8 +6,10 @@ import models.aggregates.CompanyId
 case class Company(
     id: CompanyId,
     name: String,
-    url: Option[String],
+    url: Option[String] = None,
     createdAt: DateTime,
-    deletedAt: Option[DateTime] = None) {
+    updatedAt: DateTime,
+    deletedAt: Option[DateTime] = None,
+    version: Int) {
 
 }

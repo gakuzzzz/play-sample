@@ -3,10 +3,15 @@
 
 GET     /                                   controllers.Root.index
 
-GET     /companies                          controllers.Companies.all
+GET     /companies                          controllers.Companies.index
+GET     /companies/new                      controllers.Companies.newForm
 GET     /companies/:id                      controllers.Companies.show(id: CompanyId)
 POST    /companies                          controllers.Companies.create
-DELETE  /companies/:id                      controllers.Companies.delete(id: CompanyId)
+POST    /companies/:id                      controllers.Companies.update(id: CompanyId)
+GET     /companies/:id/edit                 controllers.Companies.editForm(id: CompanyId)
+#DELETE  /companies/:id                      controllers.Companies.delete(id: CompanyId)
+GET     /companies/:id/delete               controllers.Companies.delete(id: CompanyId)
+
 
 GET     /programmers                        controllers.Programmers.all
 GET     /programmers/:id                    controllers.Programmers.show(id: ProgrammerId)

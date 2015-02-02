@@ -6,7 +6,8 @@ create table programmer (
   company_id bigint,
   created_timestamp timestamp not null,
   updated_timestamp timestamp not null,
-  deleted_timestamp timestamp
+  deleted_timestamp timestamp,
+  version integer not null
 );
 
 drop table if exists company;
@@ -15,7 +16,9 @@ create table company (
   name varchar(255) not null,
   url varchar(255),
   created_at timestamp not null,
-  deleted_at timestamp
+  updated_at timestamp not null,
+  deleted_at timestamp,
+  version integer not null
 );
 
 drop table if exists skill;

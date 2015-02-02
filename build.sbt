@@ -21,13 +21,19 @@ lazy val root = (project in file("."))
       "org.scalatestplus"         %% "play"                             % "1.2.0"             % "test"
     ),
     parallelExecution in test := false,
-    play.PlayImport.PlayKeys.routesImport := Seq(
-      "controllers.support.CustomBinders._",
-      "models.aggregates._"
-    )
+    play.PlayImport.PlayKeys.routesImport ++= commonImports ++ Seq(
+      "controllers.support.CustomBinders._"
+    ),
+    TwirlKeys.templateImports ++= commonImports
   )
 
 lazy val scalikejdbcVersion = "2.2.+"
 lazy val scalikejdbcPlayVersion = "2.3.+"
 lazy val h2Version = "1.4.+"
 lazy val playVersion = play.core.PlayVersion.current
+lazy val commonImports = Seq(
+  "models.aggregates._",
+  "models.aggregates.company.Company",
+  "models.aggregates.programmer.Programmer",
+  "models.aggregates.skill.Skill"
+)

@@ -30,13 +30,30 @@ class CompanyDao {
   }
 
   def insert(name: String, url: Option[String], now: DateTime = DateTime.now)(implicit session: DBSession): Company = {
+    val version = 1
     val id = withSQL {
       QueryDSL.insert.into(CompanyTable).namedValues(
         cc.name      -> name,
         cc.url       -> url,
-        cc.createdAt -> now)
+        cc.createdAt -> now,
+        cc.updatedAt -> now,
+        cc.version   -> version)
     }.updateAndReturnGeneratedKey.apply()
-    Company(id = CompanyId(id), name = name, url = url, createdAt = now)
+    Company(id = CompanyId(id), name = name, url = url, createdAt = now, updatedAt = now, version = version)
+  }
+
+  def update(company: Company, now: DateTime = DateTime.now)(implicit session: DBSession): Option[Company] = {
+    val version = company.version + 1
+    val succeeded = withSQL {
+      QueryDSL.update(CompanyTable).set(
+        cc.name      -> company.name,
+        cc.url       -> company.url,
+        cc.updatedAt -> now,
+        cc.version   -> version
+      ).where.eq(cc.id, company.id.value).and.eq(cc.version, company.version)
+    }.update.apply() > 0
+    if (succeeded) Some(company.copy(updatedAt = now, version = version))
+    else None
   }
 
   def delete(id: CompanyId, now: DateTime = DateTime.now)(implicit session: DBSession): Boolean = {
