@@ -1,3 +1,5 @@
+import play.twirl.sbt.Import.TwirlKeys
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .enablePlugins(SbtWeb)
