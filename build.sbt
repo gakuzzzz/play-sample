@@ -9,6 +9,8 @@ lazy val root = (project in file("."))
     scalaVersion := "2.11.5",
     libraryDependencies ++= Seq(
       "jp.t2v"                    %% "stackable-controller"             % "0.4.1",
+      "jp.t2v"                    %% "play2-auth"                       % "0.13.0",
+      "org.mindrot"                % "jbcrypt"                          % "0.3m",
       "org.scalikejdbc"           %% "scalikejdbc"                      % scalikejdbcVersion,
       "org.scalikejdbc"           %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
       "org.scalikejdbc"           %% "scalikejdbc-config"               % scalikejdbcVersion,
@@ -37,5 +39,6 @@ lazy val commonImports = Seq(
   "models.aggregates._",
   "models.aggregates.company.Company",
   "models.aggregates.programmer.Programmer",
-  "models.aggregates.skill.Skill"
+  "models.aggregates.skill.Skill",
+  "models.aggregates.account.Account"
 )

@@ -9,11 +9,11 @@ import play.api.libs.json.Json
 import _root_.controllers.support.CustomJsonFormats._
 import _root_.controllers.support.SyntaxSupport._
 import _root_.controllers.support.CustomFieldConstructors.bootstrapFieldConstructor
-import _root_.controllers.stack.InitialContextElement
+import _root_.controllers.stack.LoggingElement
 import models.ComponentRegistry
 import models.services.ServiceComponents
 
-trait Companies extends Controller with InitialContextElement { self: ServiceComponents =>
+trait Companies extends Controller with LoggingElement { self: ServiceComponents =>
 
   def index = StackAction { implicit req =>
     val companies = companyService.findAll

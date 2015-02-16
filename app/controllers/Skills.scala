@@ -8,10 +8,10 @@ import models.aggregates.SkillId
 import play.api.libs.json.Json
 import _root_.controllers.support.CustomJsonFormats._
 import _root_.controllers.support.SyntaxSupport._
-import _root_.controllers.stack.InitialContextElement
+import controllers.stack.LoggingElement
 import models.ComponentRegistry
 
-trait Skills extends Controller with InitialContextElement { self: ServiceComponents =>
+trait Skills extends Controller with LoggingElement { self: ServiceComponents =>
 
   def all = StackAction { implicit req =>
     Ok(Json.toJson(skillService.findAll))

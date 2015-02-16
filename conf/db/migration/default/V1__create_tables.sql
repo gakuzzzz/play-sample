@@ -37,4 +37,17 @@ create table programmer_skill (
   primary key(programmer_id, skill_id)
 );
 
+drop table if exists account;
+create table account (
+  id bigint not null default nextval('account_id_seq') primary key,
+  name varchar(255) not null,
+  mail varchar(255) not null,
+  hashed_password varchar(255) not null,
+  created_at timestamp not null,
+  updated_at timestamp not null,
+  deleted_at timestamp,
+  version integer not null
+);
+
+
 

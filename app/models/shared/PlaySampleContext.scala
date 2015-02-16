@@ -1,5 +1,12 @@
 package models.shared
 
-import scalikejdbc.DBSession
+import models.aggregates.account.Account
+import scalikejdbc.{AutoSession, DBSession}
 
-case class PlaySampleContext(dbSession: DBSession)
+case class PlaySampleContext(dbSession: DBSession, account: Option[Account])
+
+object PlaySampleContext {
+
+  def NotInitialized: PlaySampleContext = PlaySampleContext(AutoSession, None)
+
+}

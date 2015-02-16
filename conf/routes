@@ -3,6 +3,9 @@
 
 GET     /                                   controllers.Root.index
 
+GET     /sessions                           controllers.Sessions.login
+POST    /sessions                           controllers.Sessions.authenticate
+
 GET     /companies                          controllers.Companies.index
 GET     /companies/new                      controllers.Companies.newForm
 GET     /companies/:id                      controllers.Companies.show(id: CompanyId)

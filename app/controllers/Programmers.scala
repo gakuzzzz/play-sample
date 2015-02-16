@@ -7,13 +7,13 @@ import models.aggregates.{ProgrammerId, SkillId, CompanyId}
 import _root_.controllers.support.CustomMappings._
 import _root_.controllers.support.CustomJsonFormats._
 import _root_.controllers.support.SyntaxSupport._
-import _root_.controllers.stack.InitialContextElement
+import _root_.controllers.stack.LoggingElement
 import play.api.libs.json.Json
 import models.services.ServiceComponents
 import views.programmers.ProgrammerView
 import models.ComponentRegistry
 
-trait Programmers extends Controller with InitialContextElement { self: ServiceComponents =>
+trait Programmers extends Controller with LoggingElement { self: ServiceComponents =>
 
   def all = StackAction { implicit req =>
     val items = programmerService.findAll
