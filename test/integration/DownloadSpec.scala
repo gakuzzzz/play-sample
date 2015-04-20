@@ -14,11 +14,19 @@ import scala.concurrent.duration._
 class DownloadSpec extends FunSpec {
 
   describe("#index") {
-    it("contains value") {
+    it("should contains value") {
       running(FakeApplication()) {
         val res = route(FakeRequest(GET, "/download")).get
         assert(status(res) == 200)
         assert(contentContains(res, ", 1234,"))
+      }
+    }
+
+    it("should not contains value") {
+      running(FakeApplication()) {
+        val res = route(FakeRequest(GET, "/download")).get
+        assert(status(res) == 200)
+        assert(!contentContains(res, ", 1234567,"))
       }
     }
   }
