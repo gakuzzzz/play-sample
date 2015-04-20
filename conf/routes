@@ -30,6 +30,8 @@ GET     /skills/:id                         controllers.Skills.show(id: SkillId)
 POST    /skills                             controllers.Skills.create
 DELETE  /skills/:id                         controllers.Skills.delete(id: SkillId)
 
+GET     /download                           controllers.Download.index
+
 GET     /assets/javascripts/routes          controllers.JsRouter.javascriptRoutes
 GET     /assets/*file                       controllers.Assets.at(path="/public", file)
 
