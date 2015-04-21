@@ -8,7 +8,7 @@ object JsRouter extends Controller {
     import routes.javascript._
     Ok(
       Routes.javascriptRouter("jsRoutes")(
-        Companies.all,
+        Companies.index,
         Companies.show,
         Companies.create,
         Companies.delete,

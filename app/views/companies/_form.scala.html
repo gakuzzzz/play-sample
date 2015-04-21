@@ -1,0 +1,14 @@
+@(form: Form[Companies.CompanyForm])(implicit fieldConstructor: helper.FieldConstructor)
+
+@helper.inputText(form("name"))
+@helper.inputText(form("url"))
+@defining(form("version")) { field =>
+  <input type="hidden" name="@field.name" value="@field.value.getOrElse(1)" />
+}
+
+<div class="control-group">
+    <div class="controls">
+        <a href="@{routes.Companies.index()}" class="btn">キャンセル</a>
+        <button type="submit" class="btn btn-primary">登録</button>
+    </div>
+</div>

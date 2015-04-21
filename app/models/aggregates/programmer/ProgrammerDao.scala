@@ -40,26 +40,30 @@ class ProgrammerDao {
   }
 
   def insert(name: String, companyId: Option[CompanyId], now: DateTime = DateTime.now())(implicit session: DBSession): Programmer = {
+    val version = 1
     val id = withSQL {
       QueryDSL.insert.into(ProgrammerTable).namedValues(
         pc.name      -> name,
         pc.companyId -> companyId.map(_.value),
         pc.createdAt -> now,
-        pc.updatedAt -> now
+        pc.updatedAt -> now,
+        pc.version   -> version
       )
     }.updateAndReturnGeneratedKey.apply()
-    Programmer(id = ProgrammerId(id), name = name, companyId = companyId, createdAt = now, updatedAt = now)
+    Programmer(id = ProgrammerId(id), name = name, companyId = companyId, createdAt = now, updatedAt = now, version = version)
   }
 
   def update(p: Programmer, now: DateTime = DateTime.now())(implicit session: DBSession): Option[Programmer] = {
+    val version = p.version + 1
     val updated = withSQL {
       QueryDSL.update(ProgrammerTable).set(
         pc.name      -> p.name,
         pc.companyId -> p.companyId.map(_.value),
-        pc.updatedAt -> now
-      ).where.eq(pc.id, p.id.value)
+        pc.updatedAt -> now,
+        pc.version   -> version
+      ).where.eq(pc.id, p.id.value).and.eq(pc.version, p.version)
     }.update.apply() > 0
-    if (updated) Some(p.copy(updatedAt = now)) else None
+    if (updated) Some(p.copy(updatedAt = now, version = version)) else None
   }
 
   def delete(id: ProgrammerId, now: DateTime = DateTime.now())(implicit session: DBSession): Boolean = {

@@ -3,12 +3,14 @@ package controllers.support
 import play.api.data.Form
 import play.api.mvc.Result
 
+import scala.concurrent.Future
 import scala.util.Either.RightProjection
 
 object SyntaxSupport {
 
   implicit def formToEither[A](form: Form[A]): Either[Form[A], A] = form.fold(Left.apply, Right.apply)
   implicit def eitherToResult(e: Either[Result, Result]): Result = e.merge
+  implicit def eitherToFutureResult(e: Either[Result, Future[Result]]): Future[Result] = e.left.map(Future.successful).merge
   implicit class OptionOps[A](val value: Option[A]) extends AnyVal {
     def V(left: => Result): RightProjection[Result, A] = value.toRight(left).right
   }

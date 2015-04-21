@@ -3,10 +3,18 @@
 
 GET     /                                   controllers.Root.index
 
-GET     /companies                          controllers.Companies.all
+GET     /sessions                           controllers.Sessions.login
+POST    /sessions                           controllers.Sessions.authenticate
+
+GET     /companies                          controllers.Companies.index
+GET     /companies/new                      controllers.Companies.newForm
 GET     /companies/:id                      controllers.Companies.show(id: CompanyId)
 POST    /companies                          controllers.Companies.create
-DELETE  /companies/:id                      controllers.Companies.delete(id: CompanyId)
+POST    /companies/:id                      controllers.Companies.update(id: CompanyId)
+GET     /companies/:id/edit                 controllers.Companies.editForm(id: CompanyId)
+#DELETE  /companies/:id                      controllers.Companies.delete(id: CompanyId)
+GET     /companies/:id/delete               controllers.Companies.delete(id: CompanyId)
+
 
 GET     /programmers                        controllers.Programmers.all
 GET     /programmers/:id                    controllers.Programmers.show(id: ProgrammerId)
@@ -21,6 +29,8 @@ GET     /skills                             controllers.Skills.all
 GET     /skills/:id                         controllers.Skills.show(id: SkillId)
 POST    /skills                             controllers.Skills.create
 DELETE  /skills/:id                         controllers.Skills.delete(id: SkillId)
+
+GET     /download                           controllers.Download.index
 
 GET     /assets/javascripts/routes          controllers.JsRouter.javascriptRoutes
 GET     /assets/*file                       controllers.Assets.at(path="/public", file)

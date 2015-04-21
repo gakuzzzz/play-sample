@@ -1,12 +1,14 @@
-package models.aggregates.company
+package models.aggregates.account
 
+import models.aggregates.AccountId
 import org.joda.time.DateTime
-import models.aggregates.CompanyId
 
-case class Company(
-    id: CompanyId,
+
+case class Account(
+    id: AccountId,
     name: String,
-    url: Option[String] = None,
+    mail: String,
+    hashedPassword: HashedPassword,
     createdAt: DateTime,
     updatedAt: DateTime,
     deletedAt: Option[DateTime] = None,

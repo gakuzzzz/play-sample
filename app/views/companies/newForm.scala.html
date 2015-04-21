@@ -1,0 +1,9 @@
+@(form: Form[Companies.CompanyForm])(implicit flash: Flash, fieldConstructor: helper.FieldConstructor)
+
+@layout("Companies") {
+
+    @helper.form(action = routes.Companies.create(), args = 'class -> "form-horizontal") {
+        @_form(form)
+    }
+
+}

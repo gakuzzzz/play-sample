@@ -18,6 +18,10 @@ class CompanyService(implicit companyDao: CompanyDao) {
     companyDao.insert(name, url)
   }
 
+  def update(company: Company)(implicit ctx: PlaySampleContext): Option[Company] = {
+    companyDao.update(company)
+  }
+
   def delete(id: CompanyId)(implicit ctx: PlaySampleContext): Boolean = {
     companyDao.delete(id)
   }

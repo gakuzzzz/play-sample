@@ -1,0 +1,45 @@
+@(title: String)(content: Html)(implicit flash: Flash)
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>@title | Play-Sample</title>
+
+    <link rel='stylesheet' href='//netdna.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css'>
+    <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js'></script>
+    <style type="text/css"> body { padding-top: 60px; } </style>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="@{routes.Programmers.all()}">Play2 Sample</a>
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li><a href="@{routes.Programmers.all()}">Programmers</a></li>
+                    <li><a href="@{routes.Companies.index()}">Companies</a></li>
+                    <li><a href="@{routes.Skills.all()}">Skills</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    @flash.get("success").map { message =>
+        <p class="alert alert-success">@message</p>
+    }
+    @flash.get("error").map { message =>
+        <p class="alert alert-error">@message</p>
+    }
+    @content
+</div>
+
+<script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
+<script type='text/javascript' src='//netdna.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js'></script>
+<script type="text/javascript" src="@routes.JsRouter.javascriptRoutes"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/main.js")"></script>
+
+</body>
+</html>
