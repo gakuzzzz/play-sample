@@ -10,7 +10,7 @@ case class Programmer(
     createdAt: DateTime,
     updatedAt: DateTime,
     deletedAt: Option[DateTime] = None,
-    version: Int,
+    version: Int = 0,
     skillIds: Seq[SkillId] = Nil) {
 
 }

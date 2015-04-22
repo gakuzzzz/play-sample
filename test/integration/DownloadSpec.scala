@@ -12,7 +12,7 @@ class DownloadSpec extends FunSpec {
       running(FakeApplication()) {
         val res = route(FakeRequest(GET, "/download")).get
         assert(status(res) == 200)
-        assert(contentContains(res, ",1234,"))
+        assert(contentContains(res, ",name1234,"))
       }
     }
 
