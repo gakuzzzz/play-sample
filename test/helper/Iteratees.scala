@@ -5,19 +5,27 @@ import play.api.libs.iteratee.{Done, Cont, Input, Iteratee}
 object Iteratees {
 
   def contains(string: Array[Byte]): Iteratee[Array[Byte], Boolean] = {
-    def step(k: Int): Input[Array[Byte]] => Iteratee[Array[Byte], Boolean] = {
-      case Input.El(bytes) =>
-        @scala.annotation.tailrec
-        def cursor(i: Int, k: Int): Option[Int] =
-          if (k == string.length) None
-          else if (i == bytes.length) Some(k)
-          else if (bytes(i) == string(k)) cursor(i + 1, k + 1)
-          else cursor(i + 1, 0)
-        cursor(0, k).map(k => Cont(step(k))).getOrElse(Done(true, Input.Empty))
-      case Input.Empty => Cont(step(k))
+    @scala.annotation.tailrec
+    def contains(buffers: Iterator[Array[Byte]]): Iteratee[Array[Byte], Boolean] =	{
+      val buffer = buffers.next()
+      if (buffer.sameElements(string))
+        Done(true, Input.Empty)
+      else if (buffers.hasNext)
+        contains(buffers)
+      else
+        Cont(step(buffer))
+    }
+    def step(buffer: Array[Byte]): Input[Array[Byte]] => Iteratee[Array[Byte], Boolean] = {
+      case Input.El(input) =>
+        val bytes = buffer ++ input
+        if (bytes.length < string.length)
+          Cont(step(bytes))
+        else
+          contains(bytes.sliding(string.length))
+      case Input.Empty => Cont(step(buffer))
       case Input.EOF => Done(false, Input.EOF)
     }
-    Cont(step(0))
+    Cont(step(Array.empty))
   }
 
 }
