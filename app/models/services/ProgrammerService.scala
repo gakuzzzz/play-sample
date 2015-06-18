@@ -20,6 +20,10 @@ class ProgrammerService(implicit programmerDao: ProgrammerDao, programmerSkillDa
     }
   }
 
+  def countAll(implicit ctx: DBSession): Long = {
+    programmerDao.countAll
+  }
+
   def findSubset(limit: Int, offset: Int)(implicit ctx: DBSession): Seq[Programmer] = {
     programmerDao.findSubset(limit, offset)
   }

@@ -14,9 +14,7 @@ import scalikejdbc.DBSession
 
 trait Download extends Controller with TxElement { self: ServiceComponents =>
 
-  // dummy implementation
-  private def totalCount: Long = 4
-  // dummy implementation
+  private def totalCount(implicit session: DBSession): Long = programmerService.countAll
   private def paging(limit: Int, offset: Int)(implicit session: DBSession): Seq[Programmer] = {
     programmerService.findSubset(limit, offset)
   }

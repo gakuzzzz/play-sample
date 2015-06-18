@@ -26,6 +26,14 @@ class ProgrammerDao {
       .list.apply()
   }
 
+  def countAll(implicit session: DBSession): Long = {
+    withSQL {
+      select(sqls.count)
+        .from(ProgrammerTable as p)
+        .where.isNull(p.deletedAt)
+    }.map(_.long(1)).single().apply() getOrElse 0
+  }
+
   def findSubset(limit: Int, offset: Int)(implicit session: DBSession): Seq[Programmer] = {
     withSQL {
       select
