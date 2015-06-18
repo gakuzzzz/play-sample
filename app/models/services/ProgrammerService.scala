@@ -5,6 +5,7 @@ import models.aggregates.programmer.{Programmer, ProgrammerDao, ProgrammerSkillD
 import models.shared.PlaySampleContext
 import models.aggregates.{ProgrammerId, SkillId, CompanyId}
 import models.aggregates.company.{CompanyDao, Company}
+import scalikejdbc.DBSession
 
 class ProgrammerService(implicit programmerDao: ProgrammerDao, programmerSkillDao: ProgrammerSkillDao, skillDao: SkillDao, companyDao: CompanyDao) {
 
@@ -17,6 +18,10 @@ class ProgrammerService(implicit programmerDao: ProgrammerDao, programmerSkillDa
     ps.map { p =>
       (p, p.companyId.flatMap(companyMap.get), p.skillIds.flatMap(skillMap.get))
     }
+  }
+
+  def findSubset(limit: Int, offset: Int)(implicit ctx: DBSession): Seq[Programmer] = {
+    programmerDao.findSubset(limit, offset)
   }
 
   def findByIdWithoutAssoc(id: ProgrammerId)(implicit ctx: PlaySampleContext): Option[Programmer] = {

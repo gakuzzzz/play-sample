@@ -1,29 +1,29 @@
 package controllers
 
-import models.aggregates.ProgrammerId
+import controllers.stack.TxElement
+import models.ComponentRegistry
 import models.aggregates.programmer.Programmer
+import models.services.ServiceComponents
+import models.shared.PlaySampleContext
 import org.apache.commons.lang3.StringEscapeUtils
-import org.joda.time.DateTime
 import play.api.http.{HeaderNames, ContentTypes, ContentTypeOf, Writeable}
 import play.api.libs.iteratee.Enumerator
 import play.api.mvc.{Result, Codec, Controller, Action}
 import play.api.libs.concurrent.Execution.Implicits._
+import scalikejdbc.DBSession
 
-trait Download extends Controller {
+trait Download extends Controller with TxElement { self: ServiceComponents =>
 
   // dummy implementation
-  private def totalCount: Long = 12345
+  private def totalCount: Long = 4
   // dummy implementation
-  private def paging(limit: Int, offset: Int): Seq[Programmer] = {
-    val ids = (offset + 1) to ((limit + offset) min totalCount.toInt)
-    ids.map { i =>
-      Programmer(ProgrammerId(i), s"name$i", None, DateTime.now(), DateTime.now())
-    }.toSeq
+  private def paging(limit: Int, offset: Int)(implicit session: DBSession): Seq[Programmer] = {
+    programmerService.findSubset(limit, offset)
   }
 
-  private def csvEnumerator: Enumerator[CsvRecord] = {
-    val limit = 300
-    val offsets = Iterator.iterate(0)(_ + limit).takeWhile(_ < totalCount)
+  private def csvEnumerator(implicit session: DBSession): Enumerator[CsvRecord] = {
+    val limit = 2
+    val offsets = Iterator.iterate(0)(_ + limit).takeWhile(_ <= totalCount)
     val header = Enumerator(CsvRecord("id", "name", "company_id", "created_at"))
     val body = for {
       offset     <- Enumerator.enumerate(offsets)
@@ -32,14 +32,14 @@ trait Download extends Controller {
     header >>> body
   }
 
-  def index = Action {
+  def index = StackAction { implicit req =>
     import CsvRecord._
     Ok.chunked(csvEnumerator).withDisposition("fooo.csv")
   }
 
 }
 
-object Download extends Download
+object Download extends Download with ComponentRegistry
 
 
 

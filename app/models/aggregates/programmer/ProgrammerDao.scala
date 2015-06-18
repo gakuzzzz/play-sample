@@ -26,6 +26,21 @@ class ProgrammerDao {
       .list.apply()
   }
 
+  def findSubset(limit: Int, offset: Int)(implicit session: DBSession): Seq[Programmer] = {
+    withSQL {
+      select
+        .from(ProgrammerTable as p)
+        .leftJoin(ProgrammerSkillTable as ps).on(ps.programmerId, p.id)
+      .where.isNull(p.deletedAt)
+        .orderBy(p.id)
+      .limit(limit)
+      .offset(offset)
+    }.one(ProgrammerTable(p))
+      .toMany(_.get[Option[SkillId]](ps.resultName.skillId))
+      .map { (programmer, skills) => programmer.copy(skillIds = skills) }
+      .list.apply()
+  }
+
   def findById(id: ProgrammerId)(implicit session: DBSession): Option[Programmer] = {
     withSQL {
       select
